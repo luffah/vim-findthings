@@ -1,0 +1,127 @@
+*find.vim*    Vim lib to find and list things
+                                                                  *findthings*
+License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
+Author(s):   luffah (luffah AT runbox com)
+Revision:    1
+Last Change: 2026-05-17
+
+This plugin add features:
+ - commands starting with List and Grep (enhanced lgrep)
+ - recursive listing of a directory
+ - list vim things : oldfiles, syntax, buffers, tabs, marks,
+                     history, keymap, colorscheme, functions, commands
+ - allow to diff direchory (with vimdiff) [setf directory if the path is not recognized].
+
+==============================================================================
+CONTENTS                                                 *findthings-contents*
+
+1. Functions                                            |findthings-functions|
+2. Commands                                              |findthings-commands|
+3. Globals                                                |findthings-globals|
+
+==============================================================================
+FUNCTIONS                                               *findthings-functions*
+
+find#lcp(lines)                                                  *find#lcp()*
+    Take a list of paths and return the least common path
+
+find#List(dir,...)                                              *find#List()*
+    The function for List* commands which list files, check examples.
+
+find#ListFileCmd(dir,...)                                *find#ListFileCmd()*
+    The function for List* commands which list files from a command (like oldfiles), check examples.
+
+find#ListCmd(dir,...)                                        *find#ListCmd()*
+    The function for List* commands which list things (like functions), check examples.
+
+find#ref_win_do(cmd, back=0 or 1)                         *find#ref_win_do()*
+    Function to jump to the window related to the listing window. 
+
+find#Grep(arg, dir, ...)                                        *find#Grep()*
+    Function used for Grep*, check examples.
+
+
+==============================================================================
+COMMANDS                                                 *findthings-commands*
+
+*List* <dir> [<filter> [& [!]<filter>]] 
+    Show a recursive list of the directory in args, with optionnal filters:
+     - a filter is a pattern like useable in =~ expression
+     - pattern shall be cumulated with '&'
+     - '!<filter>' invert the filter
+
+*ListHere*
+    (see List) List directory of the current file
+
+*ListOld* [<filter>]
+    List old files
+
+*ListSyntaxFiles* [<filter>]
+    List syntax files
+
+*ListBuffers* [<filter>]
+    List buffers
+
+*ListTabs* [<filter>]
+    List tabs
+
+*ListMarks* [<filter>]
+    List marks
+
+*ListSearchHistory* [<filter>]
+    List search history
+
+*ListCmdHistory* [<filter>]
+    List command history
+
+*ListHi* [<filter>]
+    List syntax color elements (:hi)
+
+*ListSyntax* [<filter>]
+    List syntax for the current filetype (:syntax)
+
+*ListAutoCmd* [<filter>]
+    List syntax color elements (:au)
+
+*ListKeyMap* [<filter>]
+    List keymapping (:map command)
+
+*ListCommands* [<filter>]
+    List commands (:command command)
+
+*ListFunctions* [<filter>]
+    List commands (:function command)
+
+*ListColors* [<filter>]
+    List colorscheme (:colors command)
+
+*Grep* <dir> <pattern>
+    Grep ...
+
+*GrepHere* <pattern>
+    Grep in directory related to current file
+
+*VGrepHere* <pattern>
+    GrepHere in another window in order to explore without hidden current buffer
+
+*GrepFile* <pattern>
+    grep a pattern in current file
+
+*GrepSetF* <filetype>
+    add allowed filetype to search with grep (this update b:find_related_file_extensions)
+
+
+==============================================================================
+GLOBALS                                                   *findthings-globals*
+
+*g:find_keymapping*
+    setup keys for the window header
+
+*g:find_action_desc*
+    setup description for the window header
+
+*g:find_related_file_extensions*
+    map filetypes relations
+    default: { 'cpp': ['cpp', 'hpp'], 'hpp': ['cpp', 'hpp'] }
+
+vim:tw=78:ts=8:ft=help:norl:
