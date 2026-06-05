@@ -92,17 +92,17 @@ function! s:key_desc(action_name,block_alignement)
             \ b:_keymapping[a:action_name] )
             \ .s:find_panel_style['sep_block'].l:desc
     else
-      " for statusline 
+      " for statusline
       let l:desc=b:_keymapping[a:action_name].s:find_panel_style['sep_inline'].l:desc
     endif
-  else 
+  else
     let l:desc=""
   endif
   return l:desc
 endfunction
 function! s:automapping(action_name,action, ...)
   if has_key(b:_keymapping,a:action_name)
-    exe "nnoremap <silent> <nowait> <buffer> ".b:_keymapping[a:action_name].' '.a:action 
+    exe "nnoremap <silent> <nowait> <buffer> ".b:_keymapping[a:action_name].' '.a:action
     return s:key_desc(a:action_name, get(a:000, 0, 10))
   endif
   return ''
@@ -256,7 +256,7 @@ endfunction
 
 " List functions
 "@function find#List(dir,...)
-"The function for List* commands which list files, check examples.
+"Show a window  which list files, check examples (List* commands).
 function! find#List(dir,...)
   let l:dir=resolve(a:dir)
   " if (filereadable(l:dir))
@@ -271,7 +271,7 @@ function! find#List(dir,...)
 endfunction
 
 "@function find#ListFileCmd(dir,...)
-"The function for List* commands which list files from a command (like oldfiles), check examples.
+"Show a window which list files from a command (like oldfiles), check examples (ListOld).
 function! find#ListFileCmd(cmd,format,...)
   let [l:filter, l:grep] = s:fetch_filters_param(a:000)
   call s:setupwin()
@@ -281,8 +281,16 @@ function! find#ListFileCmd(cmd,format,...)
   call s:ListFileCmdUpdate(l:filter)
 endfunction
 
-"@function find#ListCmd(dir,...)
-"The function for List* commands which list things (like functions), check examples.
+"@function find#ListCmd(cmd, [<processing_dict>, <filters,..>])
+"Show a window which list commands result, check examples (ListFunctions).
+"
+"Proccessing dict shall contains some of these keys .
+" 'in_format' : pattern default '^\(.*\)$'
+" 'out_format' : pattern default '\1'
+" 'param_parsing' : pattern default '\(.*\)'
+" 'exec' :  (str) command to exec for validation action (Enter)
+" 'commands': ['<name>', '<command to exec>', '<key>', '<description>']
+" 'opts' :  (str) autoexit (win leave), autoupdate (win enter), ft=filetype, reverse (list)
 function! find#ListCmd(cmd,bdict,...)
   let [l:filter, l:grep] = s:fetch_filters_param(a:000)
   let l:extra=""
@@ -290,13 +298,7 @@ function! find#ListCmd(cmd,bdict,...)
   let b:_find_buffer_cmd_dict=a:bdict
   let b:_find_buffer_cmd=a:cmd
   let b:_find_buffer_type='none'
-  let l:abbrevs = {'<': 'in_format', '>': 'out_format', '<(': 'param_parsing', ':': 'exec', '::': 'commands',  'o': 'opts'}
   let l:defaults = {'in_format': '^\(.*\)$', 'out_format': '\1', 'param_parsing': '\(.*\)'}
-  for l:k in keys(l:abbrevs)
-    if has_key(b:_find_buffer_cmd_dict, l:k)
-      let b:_find_buffer_cmd_dict[l:abbrevs[l:k]] = b:_find_buffer_cmd_dict[l:k]
-    endif
-  endfor
   for l:k in keys(l:defaults)
     if !has_key(b:_find_buffer_cmd_dict, l:k)
       let b:_find_buffer_cmd_dict[l:k] = l:defaults[l:k]
@@ -349,7 +351,7 @@ function! s:open(mode, ...)
     endif
     exe l:ope.l:file
     wincmd W
-  endif 
+  endif
   if a:mode =~ 'split'
     exe l:sens.' split '.l:file
   endif
@@ -377,7 +379,7 @@ fu! s:edit_cursor_file(...)
   endif
   if l:diff && exists('b:diff_companion')
     " let l:cmd.=' | let b:diff_root_path="'.expand('%:p').'"'
-    let l:cmd.=' | let b:diff_root_buf='.bufnr() 
+    let l:cmd.=' | let b:diff_root_buf='.bufnr()
     let l:cmd.=' | let t:diff_root_buf_linenr='.line('.')
     let l:cmd.=' | nmap <buffer> q :call <SID>exit_child_file_diff()<cr>'
   endif
@@ -478,7 +480,7 @@ function! s:format_fname_line(val)
 endfunction
 
 "@function find#ref_win_do(cmd, back=0 or 1)
-"Function to jump to the window related to the listing window. 
+"Function to jump to the window related to the listing window.
 function! find#ref_win_do(cmd, back)
   if get(b:, '_ref_window', 0)
     if a:back == 1
@@ -499,7 +501,7 @@ endfunction
 
 
 ""
-" Update the buffer in order to show the results 
+" Update the buffer in order to show the results
 " of s:Find  i.e. the files matching the filter
 function! s:ListUpdate(filter, grep)
   if get(b:,'_find_buffer',0)
@@ -600,7 +602,7 @@ function! s:ListCmdUpdate(filter)
     let l:head= ['Cmd : '.b:_find_buffer_cmd]
 
 
-    if len(get(l:d, 'commands', [])) > 0 
+    if len(get(l:d, 'commands', [])) > 0
       for l:c in l:d['commands']
         let l:jump_cmd="substitute(<SID>getline(),'"
               \. substitute(l:d['param_parsing'],"'","''",'g')
@@ -700,7 +702,7 @@ function! s:Find(basedir, depth, filter, grep)
   if len(a:grep) > 0
     let l:sorted_find .= " | xargs grep -l '".escape(a:grep, "'")."'"
   endif
-  if get(t:, 'diff', 0) 
+  if get(t:, 'diff', 0)
     let l:sorted_find .= " | xargs sum -s | awk -F ' ' '".'{print $3 " $" $1}'."'"
   endif
   let l:sorted_find .= " | sed 's|".a:basedir."/*||' 2> /dev/null"
@@ -724,7 +726,7 @@ endfunction
 
 " ~~~ LIST FILE ~~~
 
-"@command List <dir> [<filter> [& [!]<filter>]] 
+"@command List <dir> [<filter> [& [!]<filter>]]
 "Show a recursive list of the directory in args, with optionnal filters:
 "  - a filter is a pattern like useable in =~ expression
 "  - pattern shall be cumulated with '&'
@@ -773,7 +775,7 @@ command! -nargs=* ListTabs :call find#ListCmd("echo substitute(execute('tabs'), 
 "List marks
 command! -nargs=* ListMarks :call find#ListCmd('marks', {
       \ 'in_format': '\s*\(\d\)\s\+\d\+\s\+\d\+\(.\+\)',
-      \ 'out_format': '\=printf("%-4s %s",submatch(1),submatch(2))', 
+      \ 'out_format': '\=printf("%-4s %s",submatch(1),submatch(2))',
       \ 'param_parsing': '\(\d\+\).*',
       \ 'commands': [['go', 'norm `\1']]},<f-args>)
 
@@ -786,35 +788,48 @@ command! -nargs=* ListSearchHistory :call find#ListCmd('history /', {
 
 "@command ListCmdHistory [<filter>]
 "List command history
-command! -nargs=* ListCmdHistory :call find#ListCmd('history :', {'<': '\s*\d\+\s*\(.*\)\s*.*', 'o': 'reverse', ':': '\1'}, <f-args>)
+command! -nargs=* ListCmdHistory :call find#ListCmd('history :', {
+            \ 'in_format': '\s*\d\+\s*\(.*\)\s*.*',
+            \ 'opts': 'reverse',
+            \ 'exec': '\1'}, <f-args>)
 
 "@command ListHi [<filter>]
 "List syntax color elements (:hi)
-command! -nargs=* ListHi :call find#ListCmd('hi', {'<': '\(.*\)', 'o': 'reverse', 'param_parsing': '\(.*\)\sxxx.*', ':': 'hi \1'}, <f-args>)
+command! -nargs=* ListHi :call find#ListCmd('hi', {
+            \ 'in_format': '\(.*\)',
+            \ 'opts': 'reverse',
+            \ 'param_parsing': '\(.*\)\sxxx.*',
+            \ 'exec': 'hi \1'}, <f-args>)
 
 "@command ListSyntax [<filter>]
 "List syntax for the current filetype (:syntax)
-command! -nargs=* ListSyntax :call find#ListCmd('syntax', {'o': 'ft=vim'}, <f-args>)
+command! -nargs=* ListSyntax :call find#ListCmd('syntax', {'opts': 'ft=vim'}, <f-args>)
 
 "@command ListAutoCmd [<filter>]
 "List syntax color elements (:au)
-command! -nargs=* ListAutoCmd :call find#ListCmd('au', {'o': 'ft=vim'}, <f-args>)
+command! -nargs=* ListAutoCmd :call find#ListCmd('au', {'opts': 'ft=vim'}, <f-args>)
 
 "@command ListKeyMap [<filter>]
 "List keymapping (:map command)
-command! -nargs=* ListKeyMap :call find#ListCmd('map', {'o': 'ft=vim'},<f-args>)
+command! -nargs=* ListKeyMap :call find#ListCmd('map', {'opts': 'ft=vim'},<f-args>)
 
 "@command ListCommands [<filter>]
 "List commands (:command command)
-command! -nargs=* ListCommands :call find#ListCmd('command',  {'o': 'ft=vim', '<(': '\(.*\)(.*'}, <f-args>)
+command! -nargs=* ListCommands :call find#ListCmd('command',  {'opts': 'ft=vim', 'param_parsing': '\(.*\)(.*'}, <f-args>)
 
 "@command ListFunctions [<filter>]
 "List commands (:function command)
-command! -nargs=* ListFunctions :call find#ListCmd('function', {'<': 'function \(.*\)', 'o': 'ft=vim', '<(': '\(.*\)(.*', ':': 'function \1'},<f-args>)
+command! -nargs=* ListFunctions :call find#ListCmd('function', {
+            \ 'in_format': 'function \(.*\)',
+            \ 'opts': 'ft=vim',
+            \ 'param_parsing': '\(.*\)(.*',
+            \ 'exec': 'function \1'},<f-args>)
 
 "@command ListColors [<filter>]
 "List colorscheme (:colors command)
-command! -nargs=* ListColors :call find#ListCmd('echo  globpath(&rtp,''colors/*.vim'')', {'<': '.*/\(.*\).vim', ':': (exists(':SetColorScheme')?'SetColorScheme': 'colorscheme').' \1'}, <f-args>)
+command! -nargs=* ListColors :call find#ListCmd('echo  globpath(&rtp,''colors/*.vim'')', {
+            \ 'in_format': '.*/\(.*\).vim',
+            \ 'exec': (exists(':SetColorScheme')?'SetColorScheme': 'colorscheme').' \1'}, <f-args>)
 
 
 
@@ -841,8 +856,12 @@ let g:find_related_file_extensions=get(g:,'find_related_file_extensions',{
 
 fu! s:_add_related_file_extension(ext)
   call add(b:find_related_file_extensions, a:ext)
+  call sort(b:find_related_file_extensions)
+  call uniq(b:find_related_file_extensions)
 endfu
 fu! s:_rm_related_file_extension(ext)
+  call sort(b:find_related_file_extensions)
+  call uniq(b:find_related_file_extensions)
   let l:idx=index(b:find_related_file_extensions, a:ext)
   if l:idx != -1
     call remove(b:find_related_file_extensions, l:idx)
@@ -855,20 +874,16 @@ fu! s:_set_related_file_extension(...)
   for l:a in a:000
     for l:c in split(l:a, '\zs')
       if l:c == '+' || l:c == '-'
-        call add(l:args, l:c)
-        if len(l:w) > 0
-          call add(l:args, l:w)
-          let l:w=''
-        endif
-      else
+          if len(l:w) > 0 | call add(l:args, l:w) | let l:w='' | endif
+          call add(l:args, l:c)
+      elseif l:c != ' '
         let l:w.=l:c
+        continue
       endif
+      if len(l:w) > 0 | call add(l:args, l:w) | let l:w='' | endif
     endfor
   endfor
-  if len(l:w) > 0
-    call add(l:args, l:w)
-    let l:w=''
-  endif
+  if len(l:w) > 0 | call add(l:args, l:w) | let l:w='' | endif
   for l:a in l:args
     if l:a == '+' || l:a == '-'
       let l:mode=l:a
@@ -906,7 +921,7 @@ endfu
 "@function find#Grep(arg, dir, ...)
 "Function used for Grep*, check examples.
 fu! find#Grep(arg, dir,...)
-  if !len(a:dir) 
+  if !len(a:dir)
     return
   endif
   let l:grep_opt_dict=get(b:, 'grep_opt_dict', {})
@@ -944,12 +959,23 @@ fu! find#Grep(arg, dir,...)
     endif
   endif
   let l:open=get(l:grep_opt_dict, 'open', 'tabnew')
+  let l:open_type_tab = (l:open =~ 'tab')
 
   let l:origwin=0
-  " if a:dir != expand('%') && (line('$') != 1 || !empty(getline(1)))
-  if (line('$') != 1 || !empty(getline(1)))
-      let l:curbuf=bufnr('.')
+  let l:newwin = 0
+  if !l:open_type_tab
+      let l:grepwinlist = filter(map(tabpagebuflist(),
+                  \'[v:val, bufwinid(v:val), getbufvar(v:val, "grep_opt_dict", 0)]'),
+                  \ 'type(v:val[2]) == type({})')
+
+      if len(l:grepwinlist)
+          let l:origwin=win_getid()
+          call win_gotoid(l:grepwinlist[0][1])
+      endif
+  endif
+  if (l:origwin == 0) && (a:dir != expand('%')) && (line('$') != 1 || !empty(getline(1)))
       let l:origwin=win_getid()
+      let l:curbuf=bufnr()
       exe l:open
       let l:newwin=win_getid()
       if l:open =~ 'new' | exe 'bu '.l:curbuf | endif
@@ -958,11 +984,15 @@ fu! find#Grep(arg, dir,...)
     exe 'silent! lgrep '.l:grep_opt.' "'.escape(l:arg, '"').'" '.a:dir
   catch /E480:/
     echo v:exception
-    if win_gotoid(l:newwin) | close | endif | win_gotoid(l:origwin)
+      if l:newwin
+        if win_gotoid(l:newwin) | close | endif | win_gotoid(l:origwin)
+      endif
     return
   endtry
   if len(getloclist(winnr())) == 0
-    if win_gotoid(l:newwin) | close | endif | win_gotoid(l:origwin)
+      if l:newwin
+        if win_gotoid(l:newwin) | close | endif | win_gotoid(l:origwin)
+      endif
   else
     lopen
     setlocal switchbuf=useopen
@@ -996,7 +1026,7 @@ command! -nargs=* -complete=file Grep :call find#Grep(<f-args>)
 
 "@command GrepHere <pattern>
 " Grep in directory related to current file
-command! -nargs=1 GrepHere :call find#Grep( <q-args>, expand('%:p:h'))
+command! -nargs=1 GrepHere :call find#Grep(<q-args>, expand('%:p:h'))
 
 "@command VGrepHere <pattern>
 " GrepHere in another window in order to explore without hidden current buffer
@@ -1006,6 +1036,6 @@ command! -nargs=1 VGrepHere :call find#Grep(<q-args>, expand('%:p:h'), {'open': 
 " grep a pattern in current file
 command! -nargs=1 GrepFile :call find#Grep(<q-args>, expand('%:p'))
 
-"@command GrepSetF <filetype>
-" add allowed filetype to search with grep (this update b:find_related_file_extensions)
-command! -nargs=* -complete=customlist,<SID>CompleteRelatedFileExtension GrepSetF :call <SID>_set_related_file_extension(<f-args>)
+"@command GrepSetF [[+|-]<filetype>...]
+" add allowed filetype for searching with grep (this update b:find_related_file_extensions)
+command! -nargs=* -bar -complete=customlist,<SID>CompleteRelatedFileExtension GrepSetF :call <SID>_set_related_file_extension(<f-args>)

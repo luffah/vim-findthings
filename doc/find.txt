@@ -26,16 +26,24 @@ find#lcp(lines)                                                  *find#lcp()*
     Take a list of paths and return the least common path
 
 find#List(dir,...)                                              *find#List()*
-    The function for List* commands which list files, check examples.
+    Show a window  which list files, check examples (List* commands).
 
 find#ListFileCmd(dir,...)                                *find#ListFileCmd()*
-    The function for List* commands which list files from a command (like oldfiles), check examples.
+    Show a window which list files from a command (like oldfiles), check examples (ListOld).
 
-find#ListCmd(dir,...)                                        *find#ListCmd()*
-    The function for List* commands which list things (like functions), check examples.
+find#ListCmd(cmd, [<processing_dict>, <filters,..>])         *find#ListCmd()*
+    Show a window which list commands result, check examples (ListFunctions).
+    
+    Proccessing dict shall contains some of these keys .
+    'in_format' : pattern default '^\(.*\)$'
+    'out_format' : pattern default '\1'
+    'param_parsing' : pattern default '\(.*\)'
+    'exec' :  (str) command to exec for validation action (Enter)
+    'commands': ['<name>', '<command to exec>', '<key>', '<description>']
+    'opts' :  (str) autoexit (win leave), autoupdate (win enter), ft=filetype, reverse (list)
 
 find#ref_win_do(cmd, back=0 or 1)                         *find#ref_win_do()*
-    Function to jump to the window related to the listing window. 
+    Function to jump to the window related to the listing window.
 
 find#Grep(arg, dir, ...)                                        *find#Grep()*
     Function used for Grep*, check examples.
@@ -44,7 +52,7 @@ find#Grep(arg, dir, ...)                                        *find#Grep()*
 ==============================================================================
 COMMANDS                                                 *findthings-commands*
 
-*List* <dir> [<filter> [& [!]<filter>]] 
+*List* <dir> [<filter> [& [!]<filter>]]
     Show a recursive list of the directory in args, with optionnal filters:
      - a filter is a pattern like useable in =~ expression
      - pattern shall be cumulated with '&'
@@ -107,8 +115,8 @@ COMMANDS                                                 *findthings-commands*
 *GrepFile* <pattern>
     grep a pattern in current file
 
-*GrepSetF* <filetype>
-    add allowed filetype to search with grep (this update b:find_related_file_extensions)
+*GrepSetF* [[+|-]<filetype>...]
+    add allowed filetype for searching with grep (this update b:find_related_file_extensions)
 
 
 ==============================================================================
