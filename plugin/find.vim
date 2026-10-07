@@ -851,7 +851,8 @@ command! -nargs=* ListColors :call find#ListCmd('echo  globpath(&rtp,''colors/*.
 " default: { 'cpp': ['cpp', 'hpp'], 'hpp': ['cpp', 'hpp'] }
 let g:find_related_file_extensions=get(g:,'find_related_file_extensions',{
       \ 'cpp': ['cpp', 'hpp'],
-      \ 'hpp': ['cpp', 'hpp']
+      \ 'hpp': ['cpp', 'hpp'],
+      \ 'zim': ['txt'],
       \ })
 
 fu! s:_add_related_file_extension(ext)
@@ -931,12 +932,22 @@ fu! find#Grep(arg, dir,...)
   let l:dir=expand(a:dir)
   let l:filetypes = []
   let l:parent_dir=substitute(l:dir, '\/[^/]*\/\?$', '', '')
+  let l:grep_opt=''
   if has("win32")
     "assuming findstr
     let l:grep_opt='/s'
   else
+     if len(&grepprg) == 0
+         let l:grepprg='grep'
+     else
+         let l:grepprg=split(split(&grepprg,' ')[0], '/')[-1]
+     endif
     "assuming grep
-    let l:grep_opt='-r'
+    if isdirectory(l:dir)
+        if l:grepprg =~ '^grep'
+            let l:grep_opt='-r'
+        endif
+    endif
     if len(a:000) == 1
       let l:grep_opt_dict=a:1
       if type(l:grep_opt_dict) == type("")
@@ -953,7 +964,11 @@ fu! find#Grep(arg, dir,...)
       let l:filetypes=get(l:grep_opt_dict, 'filetypes', s:_get_related_file_extensions(l:orig_ext))
       for l:ft in l:filetypes
         if len(l:ft)
-          let l:grep_opt.=" --include='*.".l:ft."'"
+            if l:grepprg =~ '^grep'
+              let l:grep_opt.=" --include='*.".l:ft."'"
+            elseif l:grepprg =~ '^rg'
+              let l:grep_opt.=" --type=".l:ft
+            endif
         endif
       endfor
     endif
@@ -982,6 +997,7 @@ fu! find#Grep(arg, dir,...)
   endif
   try
     exe 'silent! lgrep '.l:grep_opt.' "'.escape(l:arg, '"').'" '.a:dir
+    let l:grepwin = win_getid()
   catch /E480:/
     echo v:exception
       if l:newwin
@@ -1007,7 +1023,12 @@ fu! find#Grep(arg, dir,...)
     let l:statusline= s:automapping('search_parent',":call find#Grep('".escape(b:grep_name,"'")."','".l:parent_dir."')<cr>", 0).'  '
     let l:statusline.=s:automapping('jump',":.ll<cr>", 0).'  '
     let l:statusline.=s:automapping('jump_close',":.ll<cr>:lclose<cr>", 0).'  '
-    let l:statusline.=s:automapping('close',':lclose<cr>'.(l:origwin?':q<cr>:call win_gotoid('.l:origwin.')<cr>':''), 0).'  '
+    let l:close_cmd = ':lclose<cr>'
+    if l:origwin && l:grepwin != l:origwin
+      let l:close_cmd .= ':call win_gotoid('.l:grepwin.')<cr>:close<cr>'
+      let l:close_cmd .= ':call win_gotoid('.l:origwin.')<cr>'
+    endif
+    let l:statusline .= s:automapping('close', l:close_cmd, 0).'  '
     let l:statusline.=s:automapping('reload',":call find#Grep('".escape(b:grep_name,"'")."','".l:dir."')<cr>", 0)
     setlocal cursorline
     exe "setlocal statusline=".substitute(substitute(l:statusline,
